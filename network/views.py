@@ -4,7 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, Post
+
+import datetime
 
 
 def index(request):
@@ -61,3 +63,22 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/register.html")
+
+def new_post(request):
+    if request.method == "POST":
+        author = request.user
+        content = request.POST["content"]
+
+        # Attempt to create new post
+        try:
+            post = Post(author=author, content=content)
+            # Save post to database
+            post.save()
+
+        except:
+            return render(request, "network/index.html", {
+                "message": "Sorry, we are unable to create your post at this time."
+            })
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "network/index.html")

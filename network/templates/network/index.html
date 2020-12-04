@@ -3,6 +3,31 @@
 {% block body %}
 <div class="container">
     {% if user.is_authenticated %}
+    <h1>All Posts</h1>
+
+    {% if message %}
+        <div class="alert alert-warning">{{ message }}</div>
+    {% endif %}
+
+    <!-- Form that allows user to make a new post -->
+    <div class="container border border-dark rounded pst">
+        <h4>Write a New Post...</h4>
+        <form action="{% url 'new_post' %}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <!-- <input autofocus class="form-control" type="text" name="content"> -->
+                <textarea class="form-control" name="content" rows="3"></textarea>
+            </div>
+            <input class="btn btn-primary" type="submit" value="Post">
+        </form>
+    </div>
+
+    <div class="container border border-dark rounded pst">
+        TODO: add other posts here
+        <!-- {% for flight in flights %}
+            <li>Flight {{ flight.id }}: {{ flight.origin }} to {{ flight.destination }}</li>
+        {% endfor %} -->
+    </div>
 
     {% else %}
     <br>
