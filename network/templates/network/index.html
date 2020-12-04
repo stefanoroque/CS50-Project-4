@@ -1,5 +1,20 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+<div class="container">
+    {% if user.is_authenticated %}
+
+    {% else %}
+    <br>
+    <div class="jumbotron">
+        <h1 class="display-4">Welcome to Quarantine Social!</h1>
+        <p class="lead">Please log in or register to get started.</p>
+        <hr class="my-4">
+        <p>C'mon, how much harm is one more social media platform gunna do?</p>
+        <p class="lead">
+            <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Log In</a>
+        </p>
+    </div>     
+    {% endif %}
+</div>
 {% endblock %}
