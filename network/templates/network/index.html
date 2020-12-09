@@ -1,4 +1,5 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
 <div class="container">
@@ -15,19 +16,22 @@
         <form action="{% url 'new_post' %}" method="post">
             {% csrf_token %}
             <div class="form-group">
-                <!-- <input autofocus class="form-control" type="text" name="content"> -->
                 <textarea class="form-control" name="content" rows="3"></textarea>
             </div>
             <input class="btn btn-primary" type="submit" value="Post">
         </form>
     </div>
 
-    <div class="container border border-dark rounded pst">
-        TODO: add other posts here
-        <!-- {% for flight in flights %}
-            <li>Flight {{ flight.id }}: {{ flight.origin }} to {{ flight.destination }}</li>
-        {% endfor %} -->
-    </div>
+
+
+    {% for post in all_posts %}
+        <div class="container border border-dark rounded pst">
+            <h5>{{ post.author }}</h5>
+            <h6>{{ post.post_date }}</h6>
+            <p>{{ post.content }}</p>
+            <p>❤️  {{ post.num_likes }}</p>
+        </div>
+    {% endfor %}
 
     {% else %}
     <br>
@@ -42,4 +46,8 @@
     </div>     
     {% endif %}
 </div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/feed.js' %}"></script>
 {% endblock %}

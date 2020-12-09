@@ -3,14 +3,18 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils import timezone
 
 from .models import User, Post
 
 import datetime
 
-
 def index(request):
-    return render(request, "network/index.html")
+    all_posts = Post.objects.all()
+    #TODO: figour out way to convert timestamp to loacl time
+    return render(request, "network/index.html", {
+        "all_posts": all_posts.order_by('-post_date')
+    })
 
 
 def login_view(request):
