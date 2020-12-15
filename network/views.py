@@ -86,3 +86,12 @@ def new_post(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "network/index.html")
+
+def profile(request, username):
+    # Fetch the user object so it can be passed into the template
+    user = User.objects.filter(username=username).first()
+    user_posts = Post.objects.filter(author=user)
+    return render(request, "network/user_profile.html", {
+            "user": user,
+            "user_posts": user_posts.order_by('-post_date')
+        })
