@@ -3,13 +3,27 @@
 
 {% block body %}
 <div class="container">
-    <h1>{{ user.username }}</h1>
-    <h5>Followers: {{ user.num_followers }}</h5>
-    <h5>Following: {{ user.num_following }}</h5>
+    <h1>{{ desired_user.username }}</h1>
+    <h5>Followers: {{ desired_user.num_followers }}</h5>
+    <h5>Following: {{ desired_user.num_following }}</h5>
+
+    {% if user.is_authenticated %}
+    <!-- Only display to users that are logged in -->
+    {% if user != desired_user %}
+        <!-- The user who is logged in is not on their own page -->
+        {% if is_following %}
+            <button type="button" class="btn btn-outline-primary">Unfollow</button>
+            <!-- TODO: map these buttons to functions that follow or unfollow -->
+        {% else %}
+            <button type="button" class="btn btn-primary">Follow</button>
+        {% endif %}
+    {% endif %}
+    {% endif %}
+
 
 
     <div class="container border border-dark rounded pst">
-        {% for post in user_posts %}
+        {% for post in desired_user_posts %}
             <div class="d-flex pt-3">
                 
                 <div class="pb-3 mb-0 medium lh-sm border-bottom w-100">

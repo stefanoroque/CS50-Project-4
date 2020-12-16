@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import User, Post
+from .models import *
 
 import datetime
 
@@ -89,9 +89,26 @@ def new_post(request):
 
 def profile(request, username):
     # Fetch the user object so it can be passed into the template
-    user = User.objects.filter(username=username).first()
-    user_posts = Post.objects.filter(author=user)
+    desired_user = User.objects.filter(username=username).first()
+    desired_user_posts = Post.objects.filter(author=desired_user)
+    
+    # If the user is not signed in
+    if not request.user.is_authenticated:
+        return render(request, "network/user_profile.html", {
+            "desired_user": desired_user,
+            "desired_user_posts": desired_user_posts.order_by('-post_date')
+        })
+
+
+    # Check if the logged in user is following the desired user already
+    if Following.objects.filter(username=desired_user, following_username=request.user).exists():
+        is_following = True
+    else:
+        is_following = False
+
+
     return render(request, "network/user_profile.html", {
-            "user": user,
-            "user_posts": user_posts.order_by('-post_date')
+            "desired_user": desired_user,
+            "desired_user_posts": desired_user_posts.order_by('-post_date'),
+            "is_following": is_following
         })
