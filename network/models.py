@@ -16,5 +16,5 @@ class Post(models.Model):
     num_likes = models.IntegerField(default=0)
 
 class Following(models.Model):
-    username = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
-    following_username = models.ForeignKey(User, related_name="follower", on_delete=models.CASCADE)
+    followed_user = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
+    following_user = models.ForeignKey(User, related_name="follower", on_delete=models.CASCADE)

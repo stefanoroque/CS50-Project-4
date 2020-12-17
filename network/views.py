@@ -101,7 +101,7 @@ def profile(request, username):
 
 
     # Check if the logged in user is following the desired user already
-    if Following.objects.filter(username=desired_user, following_username=request.user).exists():
+    if Following.objects.filter(followed_user=desired_user, following_user=request.user).exists():
         is_following = True
     else:
         is_following = False
@@ -111,4 +111,58 @@ def profile(request, username):
             "desired_user": desired_user,
             "desired_user_posts": desired_user_posts.order_by('-post_date'),
             "is_following": is_following
+        })
+
+
+"""
+There HAS to be a better way to handle following/unfollowing users.
+However, I will leave if for now so that I can progress with the project
+TODO
+"""
+def followUser(request, username):
+    # Fetch the object of the user being followed
+    followed_user = User.objects.filter(username=username).first()
+    followed_user_posts = Post.objects.filter(author=followed_user)
+
+    following_user = request.user
+    
+    # Create new relation
+    relation = Following(followed_user=followed_user, following_user=following_user)
+    relation.save()
+
+    # Update num_following and num_followers attributes of users
+    followed_user.num_followers += 1
+    followed_user.save()
+    following_user.num_following += 1
+    following_user.save()
+   
+
+    return render(request, "network/user_profile.html", {
+            "desired_user": followed_user,
+            "desired_user_posts": followed_user_posts.order_by('-post_date'),
+            "is_following": True
+        })
+
+
+def unfollowUser(request, username):
+    # Fetch the object of the user being followed
+    followed_user = User.objects.filter(username=username).first()
+    followed_user_posts = Post.objects.filter(author=followed_user)
+
+    following_user = request.user
+    
+    # Delete relation
+    Following.objects.filter(followed_user=followed_user, following_user=following_user).delete()
+
+    # Update num_following and num_followers attributes of users
+    followed_user.num_followers -= 1
+    followed_user.save()
+    following_user.num_following -= 1
+    following_user.save()
+   
+
+    return render(request, "network/user_profile.html", {
+            "desired_user": followed_user,
+            "desired_user_posts": followed_user_posts.order_by('-post_date'),
+            "is_following": False
         })

@@ -12,10 +12,9 @@
     {% if user != desired_user %}
         <!-- The user who is logged in is not on their own page -->
         {% if is_following %}
-            <button type="button" class="btn btn-outline-primary">Unfollow</button>
-            <!-- TODO: map these buttons to functions that follow or unfollow -->
+            <a class="btn btn-outline-primary" href="{% url 'unfollowUser' username=desired_user.username %}" role="button">Unfollow</a>
         {% else %}
-            <button type="button" class="btn btn-primary">Follow</button>
+            <a class="btn btn-primary" href="{% url 'followUser' username=desired_user.username %}" role="button">Follow</a>
         {% endif %}
     {% endif %}
     {% endif %}
