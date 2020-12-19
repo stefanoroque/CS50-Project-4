@@ -11,10 +11,23 @@ import datetime
 
 def index(request):
     all_posts = Post.objects.all()
-    #TODO: figour out way to convert timestamp to loacl time
+    #TODO: figure out way to convert timestamp to local time
     return render(request, "network/index.html", {
         "all_posts": all_posts.order_by('-post_date')
     })
+
+def following(request):
+    # Page should only be available to users who are signed in
+    if not request.user.is_authenticated:
+        return render(request, "network/index.html")
+
+    else:
+        followed_users = Following.objects.filter(following_user=request.user).values_list('followed_user', flat=True)
+        following_posts = Post.objects.filter(author__in=followed_users)
+
+        return render(request, "network/following.html", {
+            "following_posts": following_posts.order_by('-post_date')
+        })
 
 
 def login_view(request):
