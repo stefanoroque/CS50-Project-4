@@ -4,16 +4,26 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
+from django.core.paginator import Paginator
 
 from .models import *
 
 import datetime
 
+# Constants
+NUM_POSTS_PER_PAGE = 5
+
 def index(request):
-    all_posts = Post.objects.all()
+    all_posts = Post.objects.all().order_by('-post_date')
+
+    paginator = Paginator(all_posts, NUM_POSTS_PER_PAGE)
+    page = request.GET.get('page')
+
+    posts = paginator.get_page(page)
+
     #TODO: figure out way to convert timestamp to local time
     return render(request, "network/index.html", {
-        "all_posts": all_posts.order_by('-post_date')
+        "posts": posts
     })
 
 def following(request):
@@ -23,10 +33,18 @@ def following(request):
 
     else:
         followed_users = Following.objects.filter(following_user=request.user).values_list('followed_user', flat=True)
-        following_posts = Post.objects.filter(author__in=followed_users)
+        following_posts = Post.objects.filter(author__in=followed_users).order_by('-post_date')
+
+        paginator = Paginator(following_posts, NUM_POSTS_PER_PAGE)
+        page = request.GET.get('page')
+
+        posts = paginator.get_page(page)
+
+
+
 
         return render(request, "network/following.html", {
-            "following_posts": following_posts.order_by('-post_date')
+            "posts": posts
         })
 
 
@@ -103,13 +121,18 @@ def new_post(request):
 def profile(request, username):
     # Fetch the user object so it can be passed into the template
     desired_user = User.objects.filter(username=username).first()
-    desired_user_posts = Post.objects.filter(author=desired_user)
+    desired_user_posts = Post.objects.filter(author=desired_user).order_by('-post_date')
+
+    paginator = Paginator(desired_user_posts, NUM_POSTS_PER_PAGE)
+    page = request.GET.get('page')
+
+    posts = paginator.get_page(page)
     
     # If the user is not signed in
     if not request.user.is_authenticated:
         return render(request, "network/user_profile.html", {
             "desired_user": desired_user,
-            "desired_user_posts": desired_user_posts.order_by('-post_date')
+            "posts": posts
         })
 
 
@@ -122,7 +145,7 @@ def profile(request, username):
 
     return render(request, "network/user_profile.html", {
             "desired_user": desired_user,
-            "desired_user_posts": desired_user_posts.order_by('-post_date'),
+            "posts": posts,
             "is_following": is_following
         })
 
@@ -135,7 +158,6 @@ TODO
 def followUser(request, username):
     # Fetch the object of the user being followed
     followed_user = User.objects.filter(username=username).first()
-    followed_user_posts = Post.objects.filter(author=followed_user)
 
     following_user = request.user
     
@@ -148,19 +170,23 @@ def followUser(request, username):
     followed_user.save()
     following_user.num_following += 1
     following_user.save()
-   
+
+    # Get the followed user's posts ready
+    followed_user_posts = Post.objects.filter(author=followed_user).order_by('-post_date')
+    paginator = Paginator(followed_user_posts, NUM_POSTS_PER_PAGE)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
 
     return render(request, "network/user_profile.html", {
             "desired_user": followed_user,
-            "desired_user_posts": followed_user_posts.order_by('-post_date'),
+            "posts": posts,
             "is_following": True
         })
 
 
 def unfollowUser(request, username):
-    # Fetch the object of the user being followed
+    # Fetch the object of the user being unfollowed
     followed_user = User.objects.filter(username=username).first()
-    followed_user_posts = Post.objects.filter(author=followed_user)
 
     following_user = request.user
     
@@ -172,10 +198,16 @@ def unfollowUser(request, username):
     followed_user.save()
     following_user.num_following -= 1
     following_user.save()
+
+    # Get the unfollowed user's posts ready
+    followed_user_posts = Post.objects.filter(author=followed_user).order_by('-post_date')
+    paginator = Paginator(followed_user_posts, NUM_POSTS_PER_PAGE)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
    
 
     return render(request, "network/user_profile.html", {
             "desired_user": followed_user,
-            "desired_user_posts": followed_user_posts.order_by('-post_date'),
+            "posts": posts,
             "is_following": False
         })

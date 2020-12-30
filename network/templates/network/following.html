@@ -8,12 +8,12 @@
 
         <div class="container border border-dark rounded pst">
         
-        {% if following_posts.count == 0 %}
+        {% if  not posts.object_list %}
             <h3>You are not following any users :'(</h3>
             <h6>Posts from users that you are following will appear here.</h6>
         
         {% else %}
-            {% for post in following_posts %}
+            {% for post in posts %}
                 <div class="d-flex pt-3">
                     
                     <div class="pb-3 mb-0 medium lh-sm border-bottom w-100">
@@ -33,6 +33,27 @@
             {% endfor %}
         {% endif %}
         </div>
+
+        <ul class="pagination justify-content-center">
+            {% if posts.has_previous %}
+                <!-- <li class="page-item"><a class="page-link" href="?page=1">First Page</a></li> -->
+                <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a></li>
+            {% endif %}
+    
+            {% for num in posts.paginator.page_range %}
+                {% if posts.number == num %}
+                    <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+    
+                {% elif num > posts.number|add:'-3' and num < posts.number|add:'3' %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+    
+            {% if posts.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ posts.next_page_number }}">Next</a></li>
+                <!-- <li class="page-item"><a class="page-link" href="?page={{ posts.paginator.num_pages }}">Last Page</a></li> -->
+            {% endif %}
+        </ul>
 
     {% else %}
         <br>
