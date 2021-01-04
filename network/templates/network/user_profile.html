@@ -12,9 +12,9 @@
     {% if user != desired_user %}
         <!-- The user who is logged in is not on their own page -->
         {% if is_following %}
-            <a class="btn btn-outline-primary" href="{% url 'unfollowUser' username=desired_user.username %}" role="button">Unfollow</a>
+            <a class="btn btn-outline-primary" id="UnfollowButton" href="{% url 'unfollowUser' username=desired_user.username %}" role="button">Unfollow</a>
         {% else %}
-            <a class="btn btn-primary" href="{% url 'followUser' username=desired_user.username %}" role="button">Follow</a>
+            <a class="btn btn-primary" id="FollowButton" href="{% url 'followUser' username=desired_user.username %}" role="button">Follow</a>
         {% endif %}
     {% endif %}
     {% endif %}
