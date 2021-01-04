@@ -42,7 +42,7 @@
                         <span> · {{ post.post_date }}</span>
                         <p><a href="#">Edit</a></p>
                         <p>{{ post.content }}</p>
-                        <p><a href="#">❤️</a>  {{ post.num_likes }}</p>
+                        <p><button type="button" class="btn btn-link like_unlike_btn" id="{{post.id}}">❤️</button>{{ post.num_likes }}</p>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                         <strong class="text-gray-dark"><a href="{% url 'profile' username=post.author %}">{{ post.author }}</a></strong>
                         <span> · {{ post.post_date }}</span>
                         <p>{{ post.content }}</p>
-                        <p><a href="#">❤️</a>  {{ post.num_likes }}</p>
+                        <p><button type="button" class="btn btn-link like_unlike_btn" id="{{post.id}}">❤️</button>{{ post.num_likes }}</p>
                     </div>
                 </div>
             </div>
@@ -106,8 +106,6 @@
     </div>     
     {% endif %}
 </div>
-{% endblock %}
 
-{% block script %}
-    <script src="{% static 'network/feed.js' %}"></script>
+<script src="{% static 'network/feed.js' %}"></script>
 {% endblock %}

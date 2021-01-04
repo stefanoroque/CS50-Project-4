@@ -7,7 +7,6 @@ class User(AbstractUser):
     num_following = models.IntegerField(default=0)
     num_followers = models.IntegerField(default=0)
 
-# TODO: Will need to add additional models to this file to represent details about posts, likes and followers
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
@@ -18,3 +17,7 @@ class Post(models.Model):
 class Following(models.Model):
     followed_user = models.ForeignKey(User, related_name="following", on_delete=models.CASCADE)
     following_user = models.ForeignKey(User, related_name="follower", on_delete=models.CASCADE)
+
+class Likes(models.Model):
+    liked_post = models.ForeignKey(Post, related_name="liked", on_delete=models.CASCADE)
+    liking_user = models.ForeignKey(User, related_name="liker", on_delete=models.CASCADE)

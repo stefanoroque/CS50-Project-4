@@ -5,3 +5,5 @@ from .models import User, Post, Following
 admin.site.register(User)
 admin.site.register(Post)
 admin.site.register(Following)
+#TODO
+# admin.site.register(Likes)
