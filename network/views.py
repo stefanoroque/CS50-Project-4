@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -6,6 +7,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import *
 
@@ -152,39 +155,79 @@ def profile(request, username):
 
 
 
-def like_unlike_post(request):
-    user = request.user
-    if request.method == 'POST':
-        post_id = request.POST.get('post_id')
-        post_obj = Post.objects.get(id=post_id)
-        profile = Profile.objects.get(user=user)
+# def like_unlike_post(request):
+#     user = request.user
+#     if request.method == 'POST':
+#         post_id = request.POST.get('post_id')
+#         post_obj = Post.objects.get(id=post_id)
+#         profile = Profile.objects.get(user=user)
 
-        if profile in post_obj.liked.all():
-            post_obj.liked.remove(profile)
-        else:
-            post_obj.liked.add(profile)
+#         if profile in post_obj.liked.all():
+#             post_obj.liked.remove(profile)
+#         else:
+#             post_obj.liked.add(profile)
 
-        like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
+#         like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
 
-        if not created:
-            if like.value=='Like':
-                like.value='Unlike'
-            else:
-                like.value='Like'
-        else:
-            like.value='Like'
+#         if not created:
+#             if like.value=='Like':
+#                 like.value='Unlike'
+#             else:
+#                 like.value='Like'
+#         else:
+#             like.value='Like'
 
-            post_obj.save()
-            like.save()
+#             post_obj.save()
+#             like.save()
 
-        data = {
-            'value': like.value,
-            'likes': post_obj.liked.all().count()
-        }
+#         data = {
+#             'value': like.value,
+#             'likes': post_obj.liked.all().count()
+#         }
 
-        return JsonResponse(data, safe=False)
+#         return JsonResponse(data, safe=False)
         
-    return redirect('posts:main-post-view')
+#     return redirect('posts:main-post-view')
+@csrf_exempt
+@login_required
+def like_unlike(request):
+
+    # Liking/unliking a post must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
+
+    # Get the post's id
+    data = json.loads(request.body)
+    post_id = data.get("post_id")
+    # Get post object
+    post = Post.objects.get(id=post_id)
+    
+    # Find out if user has liked the post already
+    if Likes.objects.filter(liked_post=post, liking_user=request.user).exists():
+        # User has already liked post
+        # Delete Likes object
+        Likes.objects.filter(liked_post=post, liking_user=request.user).delete()
+        # Decrease like attribute on post
+        post.num_likes -= 1
+        post.save()
+        # Return message to JS function
+        return JsonResponse({"message": "post unliked successfully"}, status=201)
+
+    else:
+        # User has not like post yet
+        # Create a new Likes object
+        likes = Likes(liked_post=post, liking_user=request.user)
+        likes.save()
+        # Increase like attribute on post
+        post.num_likes += 1
+        post.save()
+        # Return message to JS function
+        return JsonResponse({"message": "post liked successfully"}, status=201)
+        
+
+    
+
+    
 
 
 

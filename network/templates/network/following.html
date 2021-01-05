@@ -26,7 +26,8 @@
                             <strong class="text-gray-dark"><a href="{% url 'profile' username=post.author %}">{{ post.author }}</a></strong>
                             <span> · {{ post.post_date }}</span>
                             <p>{{ post.content }}</p>
-                            <p><button type="button" class="btn btn-link like_unlike_btn" id="{{post.id}}">❤️</button>{{ post.num_likes }}</p>
+                            <button type="button" class="btn btn-link like_unlike_btn" id="{{post.id}}">❤️</button>
+                            <p style="display: inline;" id="{{post.id}}_numlikes">{{ post.num_likes }}</p>
                         </div>
                     </div>
                 </div>
