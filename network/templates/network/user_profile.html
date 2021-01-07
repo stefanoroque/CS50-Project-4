@@ -3,8 +3,8 @@
 
 {% block body %}
 <div class="container">
-    <h1>{{ desired_user.username }}</h1>
-    <h5>Followers: {{ desired_user.num_followers }}</h5>
+    <h1 id="desired_username">{{ desired_user.username }}</h1>
+    <h5 id="num_followers">Followers: {{ desired_user.num_followers }}</h5>
     <h5>Following: {{ desired_user.num_following }}</h5>
 
     {% if user.is_authenticated %}
@@ -12,9 +12,9 @@
     {% if user != desired_user %}
         <!-- The user who is logged in is not on their own page -->
         {% if is_following %}
-            <a class="btn btn-outline-primary" id="UnfollowButton" href="{% url 'unfollowUser' username=desired_user.username %}" role="button">Unfollow</a>
+            <button type="button" class="btn btn-outline-primary" id="follow_unfollow_btn">Unfollow</button>
         {% else %}
-            <a class="btn btn-primary" id="FollowButton" href="{% url 'followUser' username=desired_user.username %}" role="button">Follow</a>
+            <button type="button" class="btn btn-primary" id="follow_unfollow_btn">Follow</button>
         {% endif %}
     {% endif %}
     {% endif %}
@@ -45,7 +45,6 @@
 
     <ul class="pagination justify-content-center">
         {% if posts.has_previous %}
-            <!-- <li class="page-item"><a class="page-link" href="?page=1">First Page</a></li> -->
             <li class="page-item"><a class="page-link" href="?page={{ posts.previous_page_number }}">Previous</a></li>
         {% endif %}
 
@@ -60,7 +59,6 @@
 
         {% if posts.has_next %}
             <li class="page-item"><a class="page-link" href="?page={{ posts.next_page_number }}">Next</a></li>
-            <!-- <li class="page-item"><a class="page-link" href="?page={{ posts.paginator.num_pages }}">Last Page</a></li> -->
         {% endif %}
     </ul>
 

@@ -153,41 +153,6 @@ def profile(request, username):
             "is_following": is_following
         })
 
-
-
-# def like_unlike_post(request):
-#     user = request.user
-#     if request.method == 'POST':
-#         post_id = request.POST.get('post_id')
-#         post_obj = Post.objects.get(id=post_id)
-#         profile = Profile.objects.get(user=user)
-
-#         if profile in post_obj.liked.all():
-#             post_obj.liked.remove(profile)
-#         else:
-#             post_obj.liked.add(profile)
-
-#         like, created = Like.objects.get_or_create(user=profile, post_id=post_id)
-
-#         if not created:
-#             if like.value=='Like':
-#                 like.value='Unlike'
-#             else:
-#                 like.value='Like'
-#         else:
-#             like.value='Like'
-
-#             post_obj.save()
-#             like.save()
-
-#         data = {
-#             'value': like.value,
-#             'likes': post_obj.liked.all().count()
-#         }
-
-#         return JsonResponse(data, safe=False)
-        
-#     return redirect('posts:main-post-view')
 @csrf_exempt
 @login_required
 def like_unlike(request):
@@ -205,7 +170,7 @@ def like_unlike(request):
     # Find out if user has liked the post already
     if Likes.objects.filter(liked_post=post, liking_user=request.user).exists():
         # User has already liked post
-        # Delete Likes object
+        # Delete Likes relation
         Likes.objects.filter(liked_post=post, liking_user=request.user).delete()
         # Decrease like attribute on post
         post.num_likes -= 1
@@ -226,73 +191,36 @@ def like_unlike(request):
         
 
     
+@csrf_exempt
+@login_required
+def follow_unfollow(request):
+    # following/unfollowing a user must be via POST
+    if request.method != "POST":
+        return JsonResponse({"error": "POST request required."}, status=400)
 
-    
+    # Get the desired user's username
+    data = json.loads(request.body)
+    desired_username = data.get("desired_username")
+    # Get desired user object
+    desired_user = User.objects.filter(username=desired_username).first()
 
-
-
-
-
-
-
-"""
-There HAS to be a better way to handle following/unfollowing users.
-However, I will leave if for now so that I can progress with the project
-TODO
-"""
-def followUser(request, username):
-    # Fetch the object of the user being followed
-    followed_user = User.objects.filter(username=username).first()
-
-    following_user = request.user
-    
-    # Create new relation
-    relation = Following(followed_user=followed_user, following_user=following_user)
-    relation.save()
-
-    # Update num_following and num_followers attributes of users
-    followed_user.num_followers += 1
-    followed_user.save()
-    following_user.num_following += 1
-    following_user.save()
-
-    # Get the followed user's posts ready
-    followed_user_posts = Post.objects.filter(author=followed_user).order_by('-post_date')
-    paginator = Paginator(followed_user_posts, NUM_POSTS_PER_PAGE)
-    page = request.GET.get('page')
-    posts = paginator.get_page(page)
-
-    return render(request, "network/user_profile.html", {
-            "desired_user": followed_user,
-            "posts": posts,
-            "is_following": True
-        })
-
-
-def unfollowUser(request, username):
-    # Fetch the object of the user being unfollowed
-    followed_user = User.objects.filter(username=username).first()
-
-    following_user = request.user
-    
-    # Delete relation
-    Following.objects.filter(followed_user=followed_user, following_user=following_user).delete()
-
-    # Update num_following and num_followers attributes of users
-    followed_user.num_followers -= 1
-    followed_user.save()
-    following_user.num_following -= 1
-    following_user.save()
-
-    # Get the unfollowed user's posts ready
-    followed_user_posts = Post.objects.filter(author=followed_user).order_by('-post_date')
-    paginator = Paginator(followed_user_posts, NUM_POSTS_PER_PAGE)
-    page = request.GET.get('page')
-    posts = paginator.get_page(page)
-   
-
-    return render(request, "network/user_profile.html", {
-            "desired_user": followed_user,
-            "posts": posts,
-            "is_following": False
-        })
+    # Check if current_user is already following desired_user
+    if Following.objects.filter(followed_user=desired_user, following_user=request.user).exists():
+        # Already following
+        # Delete Following relation
+        Following.objects.filter(followed_user=desired_user, following_user=request.user).delete()
+        # Decrease followers attribute on desired_user
+        desired_user.num_followers -= 1
+        desired_user.save()
+        # Return message to JS function
+        return JsonResponse({"message": "user unfollowed successfully"}, status=201)
+    else:
+        # Not following yet
+        # Create a new Following relation
+        following = Following(followed_user=desired_user, following_user=request.user)
+        following.save()
+        # Increase followers attribute on desired_user
+        desired_user.num_followers += 1
+        desired_user.save()
+        # Return message to JS function
+        return JsonResponse({"message": "user followed successfully"}, status=201)
