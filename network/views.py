@@ -15,7 +15,7 @@ from .models import *
 import datetime
 
 # Constants
-NUM_POSTS_PER_PAGE = 5
+NUM_POSTS_PER_PAGE = 10
 
 def index(request):
     all_posts = Post.objects.all().order_by('-post_date')
@@ -224,3 +224,27 @@ def follow_unfollow(request):
         desired_user.save()
         # Return message to JS function
         return JsonResponse({"message": "user followed successfully"}, status=201)
+
+
+@csrf_exempt
+@login_required
+def edit_post(request):
+    if request.method != "PUT":
+        return JsonResponse({"error": "PUT request required."}, status=400)
+
+    data = json.loads(request.body)
+    # Get post object
+    post_id = data.get("post_id")
+    post = Post.objects.get(id=post_id)
+    # Get the new post content
+    new_content = data.get("new_content")
+
+    # Edit the post
+    post.content = new_content
+    try:
+        post.save()
+    except:
+        return JsonResponse({"message": "unable to edit post"}, status=401)
+    
+    # Return message to JS function
+    return JsonResponse({"message": "post edited successfully"}, status=201)

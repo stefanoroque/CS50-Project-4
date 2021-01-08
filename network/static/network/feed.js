@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if(el){
     el.addEventListener('click', () => follow_unfollow());
   }
+
   document.querySelectorAll('.like_unlike_btn').forEach(item => {
       item.addEventListener('click', event => {
         like_unlike(item.id)
@@ -74,20 +75,68 @@ function like_unlike(post_id) {
       console.log(result);
       // Update HTML to reflect the like
       let old_num_likes = document.getElementById(post_id+"_numlikes").innerHTML;
-      document.getElementById(post_id+"_numlikes").innerHTML = parseInt(old_num_likes) + 1
+      document.getElementById(post_id+"_numlikes").innerHTML = parseInt(old_num_likes) + 1;
 
     } else {
       // Post has been unliked successfully
       console.log(result);
       // Update HTML to reflect the unlike
       let old_num_likes = document.getElementById(post_id+"_numlikes").innerHTML;
-      document.getElementById(post_id+"_numlikes").innerHTML = parseInt(old_num_likes) - 1
+      document.getElementById(post_id+"_numlikes").innerHTML = parseInt(old_num_likes) - 1;
     } 
   })
   .catch(error => {
-    console.log('Error:', error)
+    console.log('Error:', error);
   });
 
   // Stop form from submitting
   return false;
+}
+
+// Function to edit a post
+function edit_post(post_id) {
+  var edit_box = document.querySelector(`#edit_box_${post_id}`);
+  var post_content = document.querySelector(`#post_content_${post_id}`);
+
+  // Reset the text in the text area to the original post content
+  edit_box.value = post_content.innerHTML;
+  edit_box.style.display = 'block';
+  document.querySelector(`#edit_btn_${post_id}`).style.display = 'block';
+  document.querySelector(`#cancel_btn_${post_id}`).style.display = 'block';
+  post_content.style.display = 'none';
+}
+
+function cancel_edit_post(post_id) {
+  document.querySelector(`#edit_box_${post_id}`).style.display = 'none';
+  document.querySelector(`#edit_btn_${post_id}`).style.display = 'none';
+  document.querySelector(`#cancel_btn_${post_id}`).style.display = 'none';
+  document.querySelector(`#post_content_${post_id}`).style.display = 'block';
+}
+
+function save_edit_post(post_id) {
+    // Create JSON
+    fetch('/edit_post', {
+      method: 'PUT',
+      body: JSON.stringify({
+          post_id: post_id,
+          new_content: document.querySelector(`#edit_box_${post_id}`).value
+      })
+    })
+    // Put response into json form
+    .then(response => response.json())
+    .then(result => {
+      if (result.message == "post edited successfully") {
+        console.log(result);
+        document.querySelector(`#post_content_${post_id}`).innerHTML = document.querySelector(`#edit_box_${post_id}`).value
+        document.querySelector(`#edit_box_${post_id}`).style.display = 'none';
+        document.querySelector(`#edit_btn_${post_id}`).style.display = 'none';
+        document.querySelector(`#cancel_btn_${post_id}`).style.display = 'none';
+        document.querySelector(`#post_content_${post_id}`).style.display = 'block';
+      } else {
+        console.log('failure')
+      } 
+    })
+    .catch(error => {
+      console.log('Error:', error)
+    });
 }
