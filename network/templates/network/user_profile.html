@@ -19,12 +19,10 @@
     {% endif %}
     {% endif %}
 
-
-
     <div class="container border border-dark rounded pst">
         {% for post in posts %}
             <div class="d-flex pt-3">
-                
+                    
                 <div class="pb-3 mb-0 medium lh-sm border-bottom w-100">
                     <div class="container">
                         <svg class="bd-placeholder-img flex-shrink-0 me-2 rounded" width="32" height="32" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: 32x32" preserveAspectRatio="xMidYMid slice" focusable="false">
@@ -34,11 +32,22 @@
                         </svg>
                         <strong class="text-gray-dark"><a href="{% url 'profile' username=post.author %}">{{ post.author }}</a></strong>
                         <span> · {{ post.post_date }}</span>
-                        <p>{{ post.content }}</p>
+                        <button type="button" class="btn btn-link" onclick="edit_post('{{post.id}}')">Edit</button>
+                        <textarea class="form-control mb-2" id="edit_box_{{post.id}}" name="edit_box" style="display:none;"></textarea>
+                        <div class="btn-toolbar">
+                            <div class="btn-group mr-2" role="group">
+                                <button id="cancel_btn_{{post.id}}" class="btn btn-warning" style="display:none;" onclick="cancel_edit_post('{{post.id}}')">Cancel</button>
+                            </div>
+                            <div class="btn-group mr-2" role="group">
+                                <button id="edit_btn_{{post.id}}" class="btn btn-primary" style="display:none;" onclick="save_edit_post('{{post.id}}')">Save</button>
+                            </div>
+                        </div>
+                        <p id="post_content_{{post.id}}">{{ post.content }}</p>
                         <button type="button" class="btn btn-link like_unlike_btn" id="{{post.id}}">❤️</button>
                         <p style="display: inline;" id="{{post.id}}_numlikes">{{ post.num_likes }}</p>
                     </div>
                 </div>
+
             </div>
         {% endfor %}
     </div>

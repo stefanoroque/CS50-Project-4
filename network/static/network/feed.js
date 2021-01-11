@@ -29,7 +29,7 @@ function follow_unfollow() {
     if (result.message == "user followed successfully") {
       // User has been followed successfully
       console.log(result);
-      // TODO: Update HTML to reflect the follow
+      // Update HTML to reflect the follow
       var old_num_followers = document.getElementById("num_followers").innerHTML.replace('Followers: ','');
       console.log(parseInt(old_num_followers));
       document.getElementById("num_followers").innerHTML = 'Followers: ' + (parseInt(old_num_followers) + 1);

@@ -44,9 +44,6 @@ def following(request):
 
         posts = paginator.get_page(page)
 
-
-
-
         return render(request, "network/following.html", {
             "posts": posts
         })
@@ -139,13 +136,11 @@ def profile(request, username):
             "posts": posts
         })
 
-
     # Check if the logged in user is following the desired user already
     if Following.objects.filter(followed_user=desired_user, following_user=request.user).exists():
         is_following = True
     else:
         is_following = False
-
 
     return render(request, "network/user_profile.html", {
             "desired_user": desired_user,
@@ -190,7 +185,6 @@ def like_unlike(request):
         return JsonResponse({"message": "post liked successfully"}, status=201)
         
 
-    
 @csrf_exempt
 @login_required
 def follow_unfollow(request):
@@ -212,8 +206,13 @@ def follow_unfollow(request):
         # Decrease followers attribute on desired_user
         desired_user.num_followers -= 1
         desired_user.save()
+        # Decrease following attribute on the current user
+        request.user.num_following -= 1
+        request.user.save()
+
         # Return message to JS function
         return JsonResponse({"message": "user unfollowed successfully"}, status=201)
+
     else:
         # Not following yet
         # Create a new Following relation
@@ -222,6 +221,10 @@ def follow_unfollow(request):
         # Increase followers attribute on desired_user
         desired_user.num_followers += 1
         desired_user.save()
+        # Increase following attribute on the current user
+        request.user.num_following += 1
+        request.user.save()
+
         # Return message to JS function
         return JsonResponse({"message": "user followed successfully"}, status=201)
 
@@ -238,6 +241,10 @@ def edit_post(request):
     post = Post.objects.get(id=post_id)
     # Get the new post content
     new_content = data.get("new_content")
+
+    # Make sure the user is editing their own post
+    if not request.user == post.author:
+        return JsonResponse({"error": "You are not allowed to edit other user's posts."}, status=401)
 
     # Edit the post
     post.content = new_content

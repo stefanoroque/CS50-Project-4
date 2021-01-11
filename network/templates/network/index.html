@@ -28,7 +28,7 @@
     {% for post in posts %}
 
         {% if post.author == user %}
-            <!-- This post belings to the currently logged in user -->
+            <!-- This post belongs to the currently logged in user -->
             <div class="d-flex pt-3">
                 
                 <div class="pb-3 mb-0 medium lh-sm border-bottom w-100">
@@ -55,10 +55,9 @@
                         <p style="display: inline;" id="{{post.id}}_numlikes">{{ post.num_likes }}</p>
                     </div>
                 </div>
+
             </div>
         
-
-
         {% else %}
             <div class="d-flex pt-3">
                 
@@ -76,6 +75,7 @@
                         <p style="display: inline;" id="{{post.id}}_numlikes">{{ post.num_likes }}</p>
                     </div>
                 </div>
+                
             </div>
         {% endif %}
     {% endfor %}
